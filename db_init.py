@@ -1,3 +1,4 @@
+import os
 from pymongo import MongoClient
 
 # ALGO : 
@@ -9,10 +10,10 @@ from pymongo import MongoClient
 # Données initiales HEROS
 # Insertion multiples des données initiales HEROS dans la collection heros
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["game_db"]
+MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+DB_NAME = "game_db"
 
-monsters_collection = db["monsters"]
+monsters_collection = DB_NAME.monsters
 MONSTERS = [
     {
         "name": "Gobelin",
@@ -53,7 +54,7 @@ MONSTERS = [
 ]
 results = monsters_collection.insert_many(MONSTERS)
 
-heros_collection = db["heros"]
+heros_collection = DB_NAME.heros
 HEROS = [
     {
         "name": "Guerrier",

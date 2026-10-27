@@ -1,4 +1,13 @@
 from dataclasses import dataclass
+from typing import Dict, Any
+
+# ---------- ALGORITHME ----------
+# Character
+# 
+# Monster
+# 
+# Score
+# 
 
 @dataclass
 class Character:
@@ -42,4 +51,5 @@ class Monster(Character):
     pass
 
 @dataclass
-class 
+class Score:
+    player_name: str

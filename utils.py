@@ -1,6 +1,6 @@
 import os
 
-# ALLGO : 
+# ---------- ALGORITHME ----------
 # Fonction clear_screen pour vidée l'écran d'affichage
 # Fonction get_valid_input pour récupérer le choix de l'utilisateur
 

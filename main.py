@@ -1,13 +1,18 @@
-from utils.py import clear_screen, get_choice_input, get_pseudo_input
+import os
+from pymongo import MongoClient
+from game import Game
+from utils import clear_screen, get_choice_input, get_pseudo_input
 
+# ---------- ALGORITHME ---------- 
 # MENU = [
-#   "Lancer Jeu",
-#   "Afficher les scores",
+#   lambda: play(),
+#   "Classements",
 #   "Quitter"
-# ] 
-# Afficher le menu
-#   Boucle sur tout élément de MENU
-#       Afficher numéro élément et texte élément
+# ]
+# Menu
+#   Afficher le menu
+#       Boucle sur tout élément de MENU
+#           Afficher numéro élément et texte élément
 # Choix (options, erreur)
 #   while True:
 #       Récupérer le choix de l'utilisateur
@@ -16,77 +21,58 @@ from utils.py import clear_screen, get_choice_input, get_pseudo_input
 #           return choix
 #       sinon
 #           Lancer fonction erreur
-# Process
-#   Si choix == 1 valide
-#       Lancer la partie
-#           Pseudo (erreur)
-#               while True:
-#                   Récupérer le pseudo de l'utilisateur
-#                   Vérifier si le pseudo est valide
-#                   Si valide
-#                       return pseudo
-#                   Sinon
-#                       Lancer fonction erreur
-#           Création de l'équipe
-#               while len(team) < 3:
-#                   Afficher les héros disponible
-#                       Récupérer les héros dans la base de données
-#                           Ouvrir la base de données
-#                           Accéder à la collection heros
-#                           Boucle sur tout élément de la collection heros
-#                               Afficher numéro élément, name élément, attack élément, defense élément et heath élément
-#                   Afficher l'équipe actuel de l'utilisateur
-#                       Boucle sur tout élément de team
-#                           Afficher numéro élément, name élément, attack élément, defense élément, et health élément
-#                   Choix (options, erreur)
-#                       while True:
-#                           Récupérer le choix de l'utilisateur
-#                           Vérifier si le choix est valide
-#                           Si valide
-#                               Retirer le héro choisi de l'affichage des héros disponible
-#                                   available_heros.pop(choix - 1)
-#                               Ajouter le héro choisi à notre équipe
-#                                   team.append(choix)
-#                           Sinon
-#                               Lancer fonction erreur   
-#   Sinon si choix == 2 valide
+# Process 
+#   Jeu 
+#       Création joueur
+#       Création équipe
+#       Combat
+#       Création scores
+#   Classement
 #       Afficher les scores
-#           Récupérer les scores dans la base de données
-#               Ouvrir la base de données
-#               Accéder à la collection scores
+#           Récupérer les scores base
+#               Ouvrir la base
+#               Accéder à la collection score
 #               find
-#               Convertir le curseur en liste
+#               Convertir curseur en list
 #           Filtrer les 3 meilleurs
 #               Trie le tableau sur element.waves
-#               Prendre les 3 derniers éléments de mon tableau 
+#               Prendre les 3 derniers éléments
 #                   array[-3:-1]
-#           Afficher les scores
-#   Sinon si choix == 3 valide
-#       Quitter
-#           sys.exit() 
-#   Sinon
-#       Lancer fonction erreur
+#           Afficher les scores 
+#   Quitter 
+#       sys.exit()
+
+MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+DB_NAME = "game_db"
 
 MENU = [
-    "Lancer jeu",
-    "Afiicher scores",
+    lambda: play(),
+    "Classements",
     "Quitter"
 ]
 
 def menu():
     print("============ JeuCombat ============")
-    print("1. Démarrer une nouvelle partie")
-    print("2.Voire les meilleurs scores")
+    print("1. Nouvelle Partie")
+    print("2. Classement")
     print("3. Quitter")
+     
 
     choice = get_choice_input("Choisissez une option (1-3) : ", 1, 3)
-
-    if choice == 1:
-        play()
+    MENU[choice -1]()
 
 def play():
+    client = MongoClient(MONGO_URL)
+    game = Game(client, DB_NAME)
+
     clear_screen()
     print("==== Nouvelle Partie ====")
 
-    player_name = get_pseudo_input()
+    name = get_pseudo_input()
+    # création joueur
+    game.player_name = name
+
+    # création équipe
+    game.create_team()
+
 
