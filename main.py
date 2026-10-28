@@ -47,11 +47,12 @@ DB_NAME = "game_db"
 
 MENU = [
     lambda: play(),
-    "Classements",
-    "Quitter"
+    lambda: leaderbord(),
+    lambda: exit()
 ]
 
 def menu():
+    clear_screen()
     print("============ JeuCombat ============")
     print("1. Nouvelle Partie")
     print("2. Classement")
@@ -61,18 +62,25 @@ def menu():
     choice = get_choice_input("Choisissez une option (1-3) : ", 1, 3)
     MENU[choice -1]()
 
+    print("============ Fin ============")
+
 def play():
     client = MongoClient(MONGO_URL)
     game = Game(client, DB_NAME)
 
     clear_screen()
     print("==== Nouvelle Partie ====")
-
     name = get_pseudo_input()
-    # création joueur
     game.player_name = name
-
-    # création équipe
     game.create_team()
 
+def leaderboard():
+    client = MongoClient(MONGO_URL)
+    game = Game(client, DB_NAME)
 
+    clear_screen()
+    print(game.get_top_scores())
+    input("Appuyer sur « Entrée » pour revenir au menu principal.")
+
+if __name__ == "__main__":
+    menu()
