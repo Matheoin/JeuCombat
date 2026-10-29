@@ -1,7 +1,8 @@
+import random
 from pymongo import MongoClient
-from models import Character, Monster, score
+from models import Character, Monster
 from typing import List
-from utils import get_choice_input
+from utils import get_choice
 
 # ---------- ALGORITHME ---------- 
 # Game
@@ -127,73 +128,69 @@ from utils import get_choice_input
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Game: 
     def __init__(self, mongo_client: MongoClient, db_name: str = "game_db"):
         self.db = mongo_client[db_name]
+        self.player_name = ""
         self.team: List[Character] = []
         self.waves = 1
-        self.player_name = ""
 
-    def load_heros(self):
-        heros_data = list(self.db.characters.find())
-        return [Character.from_dict(char) for char in heros_data]
-    
-#    def get_random_monsters():
+    def charger_heros(self):
+        heros_data = list(self.db["heros"].find())
+        return [Character.from_dict(hero) for hero in heros_data]
+        #heros_list = []
+        #heros_collection = self.db["heros"]
+        #for hero in heros_collection.find():
+        #    heros_list.append(hero)
+        #return heros_list
+            
+    def monstre_aleatoire(self):
+        monstres_data = list(self.db["monsters"].find())
+        monstre = random.choice(monstres_data)
+        return Monster.from_dict(monstre)
 
-    def create_team(self):
-        heros_available = self.load_heros()
+    def creer_equipe(self):
+        heros_disponible = self.charger_heros()
         self.team = []
 
         while len(self.team) < 3:
-            for i, char in enumerate(heros_available, 1):
-                print(f"{i}. {char}")
+            print("\nHéros disponible :")
+            for i, hero in enumerate(heros_disponible, 1):
+                print(f"{i}. {hero.name} - {hero.attack} ATK - {hero.defense} DEF - {hero.health} PV")
+            print("\n\nVotre équipe :")
+            for i, hero in enumerate(self.team, 1):
+                print(f"{i}. {hero.name} - {hero.attack} ATK - {hero.defense} DEF - {hero.health} PV")
+            choice = get_choice("\nChoisissez un héro parmis ceux disponible : ", 1, 10)
+            select = heros_disponible.pop(choice - 1)
+            self.team.append(select)
+            print(f"\n{select.name} à rejoint votre équipe !")
 
-            choice = get_choice_input(f"Choisissez un personnage", 1, len(heros_available))
-            selected = heros_available.pop(choice -1)
-            self.team.append(selected)
-
-    def turn_combat(self, monster: Monster):
+    def combat(self, monstre: Monster):
+        # Tour héros
         for hero in self.team:
-            if hero.is_alive() and monster.is_alive():
-                damage = monster.take_damage(hero.attack)
-                animate_combat(f"{hero.name} attaque {monster.name}")
-                print(f"{hero.name} inflige {damage} points de dégâts à {monster.name}")
-        
-        if not monster.is_alive():
+            if hero.is_alive() and monstre.is_alive():
+                damage = hero.attack - monstre.defense
+                monstre.health = monstre.health - damage
+
+        if not monstre.is_alive():
             return True
+        
+        # Tour monstre
+        heros_vivant = [hero for hero in self.team if hero.is_alive()]
+        if heros_vivant:
+            cible = random.choice(heros_vivant)
+            damage = monstre.attack - cible.defense
+            cible.health = cible.health - damage
 
-        heros_alive = [char for char in self.team if char.is_alive()]
-        if heros_alive:
-            target = random.choice(heros_alive)
-            damage = target.take_damage(monster.attack)
-            animate_combat(f"{monster.name} inflige {damage} points de dégâts à {target.name}")
+        return any(hero.is_alive() for hero in self.team)
 
-        return any(char.is_alive() for char in self.team)
+    def equipe_vivant(self):
+        return any(hero.is_alive() for hero in self.team)
 
-    def save_score(self):
-        score = Score(player_name = self.player_name, waves = self.wave - 1)
-        self.db.scores.insert_one(score.to_dict())
+    #def save_score(self):
 
-    def get_top_score(self, limit: int = 3):
-        score_data = self.db.scores.find().sort("waves", -1).limit(limit)
-        return [Score.from_dict(score) for score in score_data]
+
+    #def get_top_score(self, limit: int = 3):
 
 
 

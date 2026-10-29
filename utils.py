@@ -8,7 +8,7 @@ def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def get_choice_input(prompt: str, min: int, max: int):
+def get_choice(prompt: str, min: int, max: int):
     choice = int(input(prompt))
     while True:
         try:
@@ -18,7 +18,7 @@ def get_choice_input(prompt: str, min: int, max: int):
         except ValueError:
             print(f"Veuillez entrer un nombre valide.")
 
-def get_pseudo_input():
+def get_pseudo():
     name = input("Entrez votre nom (3-20 caractères) : ")
     while True:
         if 3 <= len(name) <= 20:

@@ -13,7 +13,10 @@ from pymongo import MongoClient
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
 DB_NAME = "game_db"
 
-monsters_collection = DB_NAME.monsters
+client = MongoClient(MONGO_URL)
+db = client[DB_NAME]
+
+monsters_collection = db["monsters"]
 MONSTERS = [
     {
         "name": "Gobelin",
@@ -52,9 +55,9 @@ MONSTERS = [
         "health": 750
     },
 ]
-results = monsters_collection.insert_many(MONSTERS)
+monsters = monsters_collection.insert_many(MONSTERS)
 
-heros_collection = DB_NAME.heros
+heros_collection = db["heros"]
 HEROS = [
     {
         "name": "Guerrier",
@@ -117,4 +120,4 @@ HEROS = [
         "health": 150
     }
 ]
-results = heros_collection.insert_many(HEROS)
+heros = heros_collection.insert_many(HEROS)
